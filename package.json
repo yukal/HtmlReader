@@ -1,0 +1,27 @@
+{
+  "name": "htmlreader",
+  "version": "1.6.0",
+  "description": "A NodeJS helper that searches specific data from the HTML text by a given path",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --no-config --no-package -r .test.js ./test/**/test*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yukal/HtmlReader.git"
+  },
+  "keywords": [],
+  "author": "Alexander Yukal <yukal@email.ua>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yukal/HtmlReader/issues"
+  },
+  "homepage": "https://github.com/yukal/HtmlReader#readme",
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.2.0"
+  }
+}
