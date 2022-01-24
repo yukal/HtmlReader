@@ -1,4 +1,6 @@
-const HtmlReader = require('../lib/HtmlReader');
+'use strict';
+
+const HtmlReader = require('HtmlReader');
 
 const parseSpecificHtmlPage = (content) => {
   const reader = HtmlReader.from(content);
