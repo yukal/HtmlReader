@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>An example of corrupted HTML Structure</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="description" content="Example:An example of corrupted HTML Structure - Tests">
+</head>
+
+<body>
+  <table>
+    <tr>
+
+      <!-- Has closed TD tag -->
+      <td>this paragraph has valid structure</td>
+
+      <!-- missed closed TD tag -->
+      <td>
+
+    </tr>
+  </table>
+  <div>
+
+    <!-- Missed parent FORM tag -->
+    </form>
+
+  </div>
+</body>
+
+</html>
