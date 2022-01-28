@@ -2,11 +2,6 @@
 
 const Tag = require('./Tag');
 
-const HTML_COMMENT_BEGIN = '<!--';
-const HTML_COMMENT_END = '-->';
-
-const getReg = () => /<(?<tag>[!\/\w-]+)(?<params>[^>]*?)>/mg;
-
 /**
  * Checking for HTML Structure Corruption
  * @param {string} html HTML text
@@ -17,59 +12,48 @@ const checkTreeIntegrity = (html) => {
   const treeMap = {};
 
   let treeDepth = 0;
-  let beginTagPos = 0;
+  let cursorPos = 0;
 
-  // Skip !DOCTYPE and start from <html> tag
-  let matches = /<\bhtml\b.*?>/i.exec(html);
-  let cursorPos = matches !== null ? matches.index : 0;
+  html = html.toLowerCase();
 
-  matches = getReg().exec(html.slice(cursorPos));
+  let matches = Tag.regex.wholeTag(html);
 
   while (matches !== null) {
-    const [wholeMatch, tag, tagParams] = [...matches];
+    const [wholeMatch, openingSign, tagName, tagParams, closingSign] = matches;
 
-    // Skip comments <!-- ... -->
-    if (wholeMatch.startsWith(HTML_COMMENT_BEGIN)) {
-      if (!wholeMatch.endsWith(HTML_COMMENT_END)) {
-        const lastCommentPos = html.indexOf(HTML_COMMENT_END, cursorPos);
-        beginTagPos = cursorPos + matches.index;
-        cursorPos = lastCommentPos + HTML_COMMENT_END.length;
-      } else {
-        cursorPos += matches.index + wholeMatch.length;
-        beginTagPos = cursorPos - wholeMatch.length;
-      }
+    // hack: skip comments <!-- ... -->
+    if (wholeMatch.startsWith(Tag.COMMENT_BEGIN) && !wholeMatch.endsWith(Tag.COMMENT_END)) {
+      const endCommentPos = html.indexOf(Tag.COMMENT_END, cursorPos);
 
-      matches = getReg().exec(html.slice(cursorPos));
+      cursorPos = endCommentPos + Tag.COMMENT_END.length;
+      matches = Tag.regex.wholeTag(html.slice(cursorPos));
 
       continue;
-    } else {
-      cursorPos += matches.index + wholeMatch.length;
-      beginTagPos = cursorPos - wholeMatch.length;
     }
 
-    const tagSign = tag[0];
-    const currTagName = (tagSign === '/' ? tag.slice(1) : tag).toLowerCase();
-    const isSingle = Tag.isSingle(currTagName);
+    const isSingle = Tag.isSingle(tagName);
+    cursorPos += matches.index + wholeMatch.length;
 
-    if (tagSign !== '/') {
+    if (openingSign === Tag.OPENING) {
       // Processing paired tags
       if (!isSingle) {
-        treeMap[treeDepth] = currTagName;
+        treeMap[treeDepth] = tagName;
         treeDepth++;
       }
     }
 
-    else if (tagSign === '/') {
+    if (openingSign === Tag.CLOSING_PAIRED) {
       treeDepth--;
 
       const expectedTagName = treeMap[treeDepth];
 
-      if (currTagName === expectedTagName) {
+      if (tagName === expectedTagName) {
         delete treeMap[treeDepth];
       } else {
+        const beginTagPos = cursorPos - wholeMatch.length;
         const prevTagName = treeMap[treeDepth - 1];
 
-        if (currTagName === prevTagName) {
+        if (tagName === prevTagName) {
           delete treeMap[treeDepth];
           delete treeMap[--treeDepth];
 
@@ -80,13 +64,13 @@ const checkTreeIntegrity = (html) => {
           treeDepth++;
 
           // ERROR
-          const errorMessage = `Missed opening tag <${currTagName}> at position ${beginTagPos}`;
+          const errorMessage = `Missed opening tag <${tagName}> at position ${beginTagPos}`;
           errors.push(errorMessage);
         }
       }
     }
 
-    matches = getReg().exec(html.slice(cursorPos));
+    matches = Tag.regex.wholeTag(html.slice(cursorPos));
   }
 
   return errors;
