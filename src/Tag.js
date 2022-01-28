@@ -7,15 +7,34 @@ Tag.POS_CONTNENT_END = 1;
 Tag.POS_START = 2;
 Tag.POS_END = 3;
 
-Tag.CHR_PAIRED_CLOSED = '</';
-Tag.CHR_SINGLE_CLOSED = '/>';
-Tag.CHR_OPENED = String.fromCharCode(0x3c);
-Tag.CHR_ENDED = String.fromCharCode(0x3e);
+Tag.COMMENT_BEGIN = '<!--';
+Tag.COMMENT_END = '-->';
+
+Tag.CLOSING_PAIRED = '</';
+Tag.CLOSING_SINGLE = '/>';
+Tag.OPENING = '<';
+Tag.CLOSING = '>';
+
+// Tag.OPENING = String.fromCharCode(0x3c);
+// Tag.CLOSING = String.fromCharCode(0x3e);
+
+Tag.regex = {
+  wholeTag: (html) => {
+    const regex = /(?<openingSign><[!\/-]?)(?<tagName>[\w-]+)(?<tagParams>[^>]*?)(?<closingSign>[-\/]*>)/gm;
+    return typeof html === 'string' ? regex.exec(html) : regex;
+  },
+
+  // attributes: (html) => {
+  //   const regex = /(?<name>[\w]+)=["'](?<value>[^'"]+)['"]/img;
+  //   return typeof html === 'string' ? regex.exec(html) : regex;
+  // }
+};
 
 /**
  * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element
  */
 Tag.singleList = new Set([
+  'doctype',
   'area',
   'base',
   'br',
@@ -37,7 +56,8 @@ Tag.singleList = new Set([
  * isSingleTag
  * @see SingleTags
  * @param {String} tagName Tag name
+ * @returns {boolean}
  */
 Tag.isSingle = (tagName) => Tag.singleList.has(tagName);
 
-module.exports = Tag;
+module.exports = Object.freeze(Tag);

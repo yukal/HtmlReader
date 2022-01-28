@@ -164,7 +164,7 @@ const search = (selector, html, coords, firstMatch = false) => {
     const isSingle = Tag.isSingle(tagName);
     tagStart += matches.index + matchRow.length;
 
-    if (tagSign === Tag.CHR_OPENED) {
+    if (tagSign === Tag.OPENING) {
       !isSingle && tagDepth++;
       // !isSingle && logTree(matchRow, tagSign, tagDepth);
 
@@ -203,7 +203,7 @@ const search = (selector, html, coords, firstMatch = false) => {
         tagsMap[tagDepth - 1] = tags.length - 1;
         tagsMap.length += 1;
       }
-    } else if (tagSign === Tag.CHR_PAIRED_CLOSED) {
+    } else if (tagSign === Tag.CLOSING_PAIRED) {
       tagDepth--;
       // logTree(matchRow, tagSign, tagDepth);
 
